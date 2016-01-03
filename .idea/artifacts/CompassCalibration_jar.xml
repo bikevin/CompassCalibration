@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CompassCalibration:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CompassCalibration_jar</output-path>
+    <root id="archive" name="CompassCalibration.jar">
+      <element id="module-output" name="CompassCalibration" />
+      <element id="extracted-dir" path="$USER_HOME$/Documents/Java/Jama-1.0.3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
