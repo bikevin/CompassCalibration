@@ -244,33 +244,38 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
     public void actionPerformed(ActionEvent evt){
         //send entered values here
         double[][] inputPoints = new double[3][9];
-        inputPoints[0][0] = Double.valueOf(txt1.getText());
-        inputPoints[0][1] = Double.valueOf(txt4.getText());
-        inputPoints[0][2] = Double.valueOf(txt7.getText());
-        inputPoints[0][3] = Double.valueOf(txt10.getText());
-        inputPoints[0][4] = Double.valueOf(txt13.getText());
-        inputPoints[0][5] = Double.valueOf(txt16.getText());
-        inputPoints[0][6] = Double.valueOf(txt19.getText());
-        inputPoints[0][7] = Double.valueOf(txt22.getText());
-        inputPoints[0][8] = Double.valueOf(txt25.getText());
-        inputPoints[1][0] = Double.valueOf(txt2.getText());
-        inputPoints[1][1] = Double.valueOf(txt5.getText());
-        inputPoints[1][2] = Double.valueOf(txt8.getText());
-        inputPoints[1][3] = Double.valueOf(txt11.getText());
-        inputPoints[1][4] = Double.valueOf(txt14.getText());
-        inputPoints[1][5] = Double.valueOf(txt17.getText());
-        inputPoints[1][6] = Double.valueOf(txt20.getText());
-        inputPoints[1][7] = Double.valueOf(txt23.getText());
-        inputPoints[1][8] = Double.valueOf(txt26.getText());
-        inputPoints[2][0] = Double.valueOf(txt3.getText());
-        inputPoints[2][1] = Double.valueOf(txt6.getText());
-        inputPoints[2][2] = Double.valueOf(txt9.getText());
-        inputPoints[2][3] = Double.valueOf(txt12.getText());
-        inputPoints[2][4] = Double.valueOf(txt15.getText());
-        inputPoints[2][5] = Double.valueOf(txt18.getText());
-        inputPoints[2][6] = Double.valueOf(txt21.getText());
-        inputPoints[2][7] = Double.valueOf(txt24.getText());
-        inputPoints[2][8] = Double.valueOf(txt27.getText());
+        try {
+            inputPoints[0][0] = Double.valueOf(txt1.getText());
+            inputPoints[0][1] = Double.valueOf(txt4.getText());
+            inputPoints[0][2] = Double.valueOf(txt7.getText());
+            inputPoints[0][3] = Double.valueOf(txt10.getText());
+            inputPoints[0][4] = Double.valueOf(txt13.getText());
+            inputPoints[0][5] = Double.valueOf(txt16.getText());
+            inputPoints[0][6] = Double.valueOf(txt19.getText());
+            inputPoints[0][7] = Double.valueOf(txt22.getText());
+            inputPoints[0][8] = Double.valueOf(txt25.getText());
+            inputPoints[1][0] = Double.valueOf(txt2.getText());
+            inputPoints[1][1] = Double.valueOf(txt5.getText());
+            inputPoints[1][2] = Double.valueOf(txt8.getText());
+            inputPoints[1][3] = Double.valueOf(txt11.getText());
+            inputPoints[1][4] = Double.valueOf(txt14.getText());
+            inputPoints[1][5] = Double.valueOf(txt17.getText());
+            inputPoints[1][6] = Double.valueOf(txt20.getText());
+            inputPoints[1][7] = Double.valueOf(txt23.getText());
+            inputPoints[1][8] = Double.valueOf(txt26.getText());
+            inputPoints[2][0] = Double.valueOf(txt3.getText());
+            inputPoints[2][1] = Double.valueOf(txt6.getText());
+            inputPoints[2][2] = Double.valueOf(txt9.getText());
+            inputPoints[2][3] = Double.valueOf(txt12.getText());
+            inputPoints[2][4] = Double.valueOf(txt15.getText());
+            inputPoints[2][5] = Double.valueOf(txt18.getText());
+            inputPoints[2][6] = Double.valueOf(txt21.getText());
+            inputPoints[2][7] = Double.valueOf(txt24.getText());
+            inputPoints[2][8] = Double.valueOf(txt27.getText());
+        } catch (NumberFormatException e){
+            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(this, "One or more input fields are blank", "Error", JOptionPane.ERROR_MESSAGE);
+        }
 
         double[][] ellipsoidMatrix = new double[9][9];
 
@@ -304,7 +309,13 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
         Matrix flat = new Matrix(flattener);
 
-        Matrix ellipseSolved = (ellipse.inverse().times(ellipse).solve(ellipse.inverse().times(flat)));
+        Matrix ellipseSolved = new Matrix(0,0);
+
+        try {
+            ellipseSolved = (ellipse.inverse().times(ellipse).solve(ellipse.inverse().times(flat)));
+        } catch(RuntimeException e){
+            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs", "Error", JOptionPane.ERROR_MESSAGE);
+        }
 
         //create algebraic form of ellipsoid (quadratic form matrix, symmetric)
         //from equation Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
@@ -362,7 +373,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         CholeskyDecomposition ellipseChol = new CholeskyDecomposition(ellipseTranslatedSubmatrix);
         if(!ellipseChol.isSPD()){
             System.out.println("Parameters do not define a real ellipse, exiting");
-            System.exit(1);
+            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
 
@@ -374,7 +385,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         Matrix eigenvectors = ellipseEigen.getV();
 
 
-        //matrix of only eigenvalues
+        //matrix of only eigenvalues, equivalent to diag(eigenvalueMatrix)
         Matrix eigenvalues = new Matrix(1,3);
         for(int i = 0; i < 3; i++){
             eigenvalues.set(0,i,eigenvalueMatrix.get(i,i));
@@ -384,9 +395,10 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         Matrix radii = eigenvalues.copy();
         //create matrix of ones to find the reciprocal of everything in eigenvalues
         Matrix ones = new Matrix(1,3,1);
+        //do (1/eigenvalues)
         radii.arrayLeftDivideEquals(ones);
 
-        //find radii
+        //do sqrt(1/eigenvalues)
         for(int i = 0; i < 3; i++){
             radii.set(0, i, Math.sqrt(radii.get(0, i)));
         }
@@ -422,7 +434,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
         radiiText.setText(radiiString);
 
-        //rotation matrix: derotated point = i * rotation
+        //rotation matrix: derotated point = rotation * i
         System.out.println("Rotation matrix: ");
         eigenvectors.print(1, 5);
 
