@@ -7,7 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ed0c306-aa43-4dc5-9590-cae5bd8ba02d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CalibrationGUI.java" afterPath="$PROJECT_DIR$/src/CalibrationGUI.java" />
     </list>
     <ignored path="CompassCalibration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,13 +44,13 @@
       <file leaf-file-name="CalibrationGUI.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/CalibrationGUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2131324">
-              <caret line="419" column="39" selection-start-line="419" selection-start-column="39" selection-end-line="419" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.43918192">
+              <caret line="24" column="44" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="e#15050#15051#0" expanded="true" />
-                <element signature="e#15080#15081#0" expanded="true" />
+                <element signature="e#15318#15319#0" expanded="true" />
+                <element signature="e#15348#15349#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -511,8 +511,8 @@
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#15050#15051#0" expanded="true" />
-            <element signature="e#15080#15081#0" expanded="true" />
+            <element signature="e#15318#15319#0" expanded="true" />
+            <element signature="e#15348#15349#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -541,13 +541,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/CalibrationGUI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2131324">
-          <caret line="419" column="39" selection-start-line="419" selection-start-column="39" selection-end-line="419" selection-end-column="39" />
+        <state vertical-scroll-proportion="0.43918192">
+          <caret line="24" column="44" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#15050#15051#0" expanded="true" />
-            <element signature="e#15080#15081#0" expanded="true" />
+            <element signature="e#15318#15319#0" expanded="true" />
+            <element signature="e#15348#15349#0" expanded="true" />
           </folding>
         </state>
       </provider>

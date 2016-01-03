@@ -1,6 +1,9 @@
 /**
  * Created by Kevin on 12/27/2015.
- * Builds GUI for the calibration program.
+ * Builds GUI and does the math for for the calibration program.
+ * Uses math from http://www.mathworks.com/matlabcentral/fileexchange/45356-fitting-quadratic-curves-and-surfaces/
+ * and http://www.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit to calculate the fitted
+ * ellipse characteristics.
  */
 import Jama.CholeskyDecomposition;
 import Jama.EigenvalueDecomposition;
