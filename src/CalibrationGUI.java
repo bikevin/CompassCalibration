@@ -274,22 +274,92 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             inputPoints[2][8] = Double.valueOf(txt27.getText());
         } catch (NumberFormatException e){
             System.out.println(e.getMessage());
-            JOptionPane.showMessageDialog(this, "One or more input fields are blank", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "One or more input fields are blank",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        double[][] ellipsoidMatrix = new double[9][9];
+        //find an ellipse that fits the points if such an ellipse exists
+        Matrix ellipseSolved = ellipseSolver(inputPoints);
+
+        //find the center, radii, rotation matrices of that ellipse
+        EllipseInformation ellipseInformation = ellipseCharacteristicCalculation(ellipseSolved);
+
+        Matrix center = ellipseInformation.getCenter();
+        Matrix radii = ellipseInformation.getRadii();
+        Matrix rotation = ellipseInformation.getRotation();
+
+        //display those matrices
+        //set a rounder to round all numbers to 3 decimal places
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.CEILING);
+
+        //print center
+        double[][] centerArray = center.getArray();
+        String centerString = "";
+        for (double[] internalArray : centerArray) {
+            for (double coordinate : internalArray) {
+                centerString = centerString + String.valueOf(df.format(coordinate)) + " ";
+            }
+        }
+
+        centerText.setText(centerString);
+
+        System.out.println("Radii: x y z");
+        radii.print(1, 3);
+
+        double[][] radiiArray = radii.getArray();
+        String radiiString = "";
+        for(double[] internalArray : radiiArray){
+            for(double coordinate : internalArray){
+                radiiString = radiiString + String.valueOf(df.format(coordinate)) + " ";
+            }
+        }
+
+        radiiText.setText(radiiString);
+
+        //rotation matrix: derotated point = rotation * i
+        System.out.println("Rotation matrix: ");
+        rotation.print(1, 5);
+
+        double[][] rotationArray = rotation.getArray();
+        String rotationString = "";
+        for(double[] internalArray : rotationArray){
+            for(double coordinate : internalArray){
+                rotationString = rotationString + String.valueOf(df.format(coordinate)) + " ";
+            }
+            rotationString = rotationString + "\n";
+        }
+
+        rotationMatrix.setText(rotationString);
+    }
+
+    //REQUIRES: nx3 array, column one is x, column two is y, column three is z
+    //EFFECTS: returns an 1x8 vector representing an ellipse in the form
+    //Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
+    public Matrix ellipseSolver(double[][] pointArray){
+        if(pointArray.length != 3){
+            JOptionPane.showMessageDialog(this, "Improper points inputted - not in xyz format",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        if(pointArray[0].length < 9){
+            JOptionPane.showMessageDialog(this, "Need at least 9 points to calculate a good ellipse",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        double[][] ellipsoidMatrix = new double[pointArray[0].length][pointArray[0].length];
 
         //fitting ellipsoid in form Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
-        for(int i = 0; i < 9; i++){
-            ellipsoidMatrix[0][i] = inputPoints[0][i] * inputPoints[0][i];
-            ellipsoidMatrix[1][i] = inputPoints[1][i] * inputPoints[1][i];
-            ellipsoidMatrix[2][i] = inputPoints[2][i] * inputPoints[2][i];
-            ellipsoidMatrix[3][i] = 2 * inputPoints[0][i] * inputPoints[1][i];
-            ellipsoidMatrix[4][i] = 2 * inputPoints[0][i] * inputPoints[2][i];
-            ellipsoidMatrix[5][i] = 2 * inputPoints[1][i] * inputPoints[2][i];
-            ellipsoidMatrix[6][i] = 2 * inputPoints[0][i];
-            ellipsoidMatrix[7][i] = 2 * inputPoints[1][i];
-            ellipsoidMatrix[8][i] = 2 * inputPoints[2][i];
+        for(int i = 0; i < pointArray[0].length; i++){
+            ellipsoidMatrix[0][i] = pointArray[0][i] * pointArray[0][i];
+            ellipsoidMatrix[1][i] = pointArray[1][i] * pointArray[1][i];
+            ellipsoidMatrix[2][i] = pointArray[2][i] * pointArray[2][i];
+            ellipsoidMatrix[3][i] = 2 * pointArray[0][i] * pointArray[1][i];
+            ellipsoidMatrix[4][i] = 2 * pointArray[0][i] * pointArray[2][i];
+            ellipsoidMatrix[5][i] = 2 * pointArray[1][i] * pointArray[2][i];
+            ellipsoidMatrix[6][i] = 2 * pointArray[0][i];
+            ellipsoidMatrix[7][i] = 2 * pointArray[1][i];
+            ellipsoidMatrix[8][i] = 2 * pointArray[2][i];
         }
 
 
@@ -314,8 +384,16 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         try {
             ellipseSolved = (ellipse.inverse().times(ellipse).solve(ellipse.inverse().times(flat)));
         } catch(RuntimeException e){
-            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+        return ellipseSolved;
+    }
+
+    //REQUIRES: 1x8 matrix in the form Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
+    //EFFECTS: returns object containing center, radii, and rotation of ellipse
+    public EllipseInformation ellipseCharacteristicCalculation(Matrix ellipse){
 
         //create algebraic form of ellipsoid (quadratic form matrix, symmetric)
         //from equation Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
@@ -324,28 +402,28 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         //[ D(5) D(6) D(3) D(9) ]
         //[ D(7) D(8) D(9)  -1  ]
         Matrix ellipseQuadratic = new Matrix(4,4);
-        ellipseQuadratic.set(0,0,ellipseSolved.get(0,0));
-        ellipseQuadratic.set(0,1,ellipseSolved.get(3,0));
-        ellipseQuadratic.set(0,2,ellipseSolved.get(4,0));
-        ellipseQuadratic.set(0,3,ellipseSolved.get(6,0));
-        ellipseQuadratic.set(1,0,ellipseSolved.get(3,0));
-        ellipseQuadratic.set(1,1,ellipseSolved.get(1,0));
-        ellipseQuadratic.set(1,2,ellipseSolved.get(5,0));
-        ellipseQuadratic.set(1,3,ellipseSolved.get(7,0));
-        ellipseQuadratic.set(2,0,ellipseSolved.get(4,0));
-        ellipseQuadratic.set(2,1,ellipseSolved.get(5,0));
-        ellipseQuadratic.set(2,2,ellipseSolved.get(2,0));
-        ellipseQuadratic.set(2,3,ellipseSolved.get(8,0));
-        ellipseQuadratic.set(3,0,ellipseSolved.get(6,0));
-        ellipseQuadratic.set(3,1,ellipseSolved.get(7,0));
-        ellipseQuadratic.set(3,2,ellipseSolved.get(8,0));
+        ellipseQuadratic.set(0,0,ellipse.get(0,0));
+        ellipseQuadratic.set(0,1,ellipse.get(3,0));
+        ellipseQuadratic.set(0,2,ellipse.get(4,0));
+        ellipseQuadratic.set(0,3,ellipse.get(6,0));
+        ellipseQuadratic.set(1,0,ellipse.get(3,0));
+        ellipseQuadratic.set(1,1,ellipse.get(1,0));
+        ellipseQuadratic.set(1,2,ellipse.get(5,0));
+        ellipseQuadratic.set(1,3,ellipse.get(7,0));
+        ellipseQuadratic.set(2,0,ellipse.get(4,0));
+        ellipseQuadratic.set(2,1,ellipse.get(5,0));
+        ellipseQuadratic.set(2,2,ellipse.get(2,0));
+        ellipseQuadratic.set(2,3,ellipse.get(8,0));
+        ellipseQuadratic.set(3,0,ellipse.get(6,0));
+        ellipseQuadratic.set(3,1,ellipse.get(7,0));
+        ellipseQuadratic.set(3,2,ellipse.get(8,0));
         ellipseQuadratic.set(3,3,-1);
+
+
         //find center of ellipse - use center = quad(1:3, 1:3) ^ -1 * -solved(7:9)
         //create quad(1:3, 1:3) and -solved(7:9)
-
-
         Matrix ellipseQuadraticCenter = ellipseQuadratic.getMatrix(0,2,0,2);
-        Matrix ellipseSolvedCenter = ellipseSolved.getMatrix(6,8,0,0);
+        Matrix ellipseSolvedCenter = ellipse.getMatrix(6,8,0,0);
 
         Matrix center = ellipseQuadraticCenter.inverse().times(ellipseSolvedCenter.times(-1));
 
@@ -373,7 +451,8 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         CholeskyDecomposition ellipseChol = new CholeskyDecomposition(ellipseTranslatedSubmatrix);
         if(!ellipseChol.isSPD()){
             System.out.println("Parameters do not define a real ellipse, exiting");
-            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
 
 
@@ -403,51 +482,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             radii.set(0, i, Math.sqrt(radii.get(0, i)));
         }
 
-        //set a rounder to round all numbers to 3 decimal places
-        DecimalFormat df = new DecimalFormat("#.###");
-        df.setRoundingMode(RoundingMode.CEILING);
-
-        //print center
-        double[][] centerArray = center.getArray();
-        String centerString = "";
-        for(int i = 0; i < centerArray.length; i++){
-            for(int j = 0; j < centerArray[i].length; j++){
-                centerString = centerString + String.valueOf(df.format(centerArray[i][j])) + " ";
-            }
-        }
-
-        centerText.setText(centerString);
-
-        //divide by radii to size correctly
-        System.out.println("Radii: x y z");
-        radii.print(1, 3);
-
-
-
-        double[][] radiiArray = radii.getArray();
-        String radiiString = "";
-        for(int i = 0; i < radiiArray.length; i++){
-            for(int j = 0; j < radiiArray[i].length; j++){
-                radiiString = radiiString + String.valueOf(df.format(radiiArray[i][j])) + " ";
-            }
-        }
-
-        radiiText.setText(radiiString);
-
-        //rotation matrix: derotated point = rotation * i
-        System.out.println("Rotation matrix: ");
-        eigenvectors.print(1, 5);
-
-        double[][] rotationArray = eigenvectors.getArray();
-        String rotationString = "";
-        for(int i = 0; i < rotationArray.length; i++){
-            for(int j = 0; j < rotationArray[i].length; j++){
-                rotationString = rotationString + String.valueOf(df.format(rotationArray[i][j])) + " ";
-            }
-            rotationString = rotationString + "\n";
-        }
-
-        rotationMatrix.setText(rotationString);
+        return new EllipseInformation(center, radii, eigenvectors);
     }
 
     @Override
@@ -468,4 +503,26 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
     public void windowActivated(WindowEvent e){}
     @Override
     public void windowDeactivated(WindowEvent e){}
+}
+
+//holder object for ellipse center, radii, and rotation matrices
+class EllipseInformation {
+    Matrix center, radii, rotation;
+    public EllipseInformation(Matrix ellipseCenter, Matrix ellipseRadii, Matrix ellipseRotation){
+        center = ellipseCenter;
+        radii = ellipseRadii;
+        rotation = ellipseRotation;
+    }
+
+    public Matrix getCenter(){
+        return center;
+    }
+
+    public Matrix getRadii(){
+        return radii;
+    }
+
+    public Matrix getRotation(){
+        return rotation;
+    }
 }
