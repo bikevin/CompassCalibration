@@ -273,6 +273,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             System.out.println(e.getMessage());
             JOptionPane.showMessageDialog(this, "One or more input fields are blank",
                     "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
 
         //find an ellipse that fits the points if such an ellipse exists
@@ -337,11 +338,13 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         if(pointArray.length != 3){
             JOptionPane.showMessageDialog(this, "Improper points inputted - not in xyz format",
                     "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error: Points not in xyz format");
         }
 
         if(pointArray[0].length < 9){
             JOptionPane.showMessageDialog(this, "Need at least 9 points to calculate a good ellipse",
                     "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error: need at least 9 points for ellipse calculation");
         }
 
         double[][] ellipsoidMatrix = new double[9][pointArray[0].length];
@@ -376,6 +379,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         } catch(RuntimeException e){
             JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs",
                     "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
 
         return ellipseSolved;
@@ -443,6 +447,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             System.out.println("Parameters do not define a real ellipse, exiting");
             JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs",
                     "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error: Matrix is not single positive definite, check the inputs");
         }
 
 
@@ -513,8 +518,10 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             }
         } catch(FileNotFoundException e){
             JOptionPane.showMessageDialog(this, "File not found", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch(IOException e){
             JOptionPane.showMessageDialog(this, "IO Error", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
 
         //convert from dynamically growing arraylist to statically sized double[][] that ellipseSolver() can use

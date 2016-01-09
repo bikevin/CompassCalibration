@@ -6,16 +6,9 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3ed0c306-aa43-4dc5-9590-cae5bd8ba02d" name="Default" comment="Moved solving the ellipse to a separate function&#10;Moved calculating center, radii, rotation matrix of that ellipse to another function&#10;Solving the ellipse can take any number of points now, versus the original restriction of 9 points only">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Jama_1_0_2.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/CompassCalibration/CalibrationGUI$1.class" afterPath="$PROJECT_DIR$/out/production/CompassCalibration/CalibrationGUI$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/CompassCalibration/CalibrationGUI.class" afterPath="$PROJECT_DIR$/out/production/CompassCalibration/CalibrationGUI.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/CompassCalibration/CompassCalibration.class" afterPath="$PROJECT_DIR$/out/production/CompassCalibration/CompassCalibration.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+    <list default="true" id="3ed0c306-aa43-4dc5-9590-cae5bd8ba02d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CompassCalibration.iml" afterPath="$PROJECT_DIR$/CompassCalibration.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CalibrationGUI.java" afterPath="$PROJECT_DIR$/src/CalibrationGUI.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CompassCalibration.java" afterPath="$PROJECT_DIR$/src/CompassCalibration.java" />
     </list>
     <ignored path="CompassCalibration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -50,12 +43,13 @@
       <file leaf-file-name="CalibrationGUI.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/CalibrationGUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.18541409">
-              <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+            <state vertical-scroll-proportion="0.3695921">
+              <caret line="519" column="23" selection-start-line="519" selection-start-column="12" selection-end-line="519" selection-end-column="23" />
               <folding>
+                <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="e#19462#19463#0" expanded="true" />
-                <element signature="e#19492#19493#0" expanded="true" />
+                <element signature="e#19849#19850#0" expanded="true" />
+                <element signature="e#19879#19880#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -454,12 +448,18 @@
       <option name="project" value="LOCAL" />
       <updated>1452284816187</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added a method to read from CSV files, supports either files with only accelerometer values or compass and accelerometer values, where compass values are ignored&#10;Fixed bugs in the math">
+      <created>1452377414693</created>
+      <option name="number" value="00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1452377414693</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-11" y="-11" width="2582" height="1417" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -471,7 +471,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3291039" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -499,7 +499,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Moved solving the ellipse to a separate function&#10;Moved calculating center, radii, rotation matrix of that ellipse to another function&#10;Solving the ellipse can take any number of points now, versus the original restriction of 9 points only" />
-    <option name="LAST_COMMIT_MESSAGE" value="Moved solving the ellipse to a separate function&#10;Moved calculating center, radii, rotation matrix of that ellipse to another function&#10;Solving the ellipse can take any number of points now, versus the original restriction of 9 points only" />
+    <MESSAGE value="Added a method to read from CSV files, supports either files with only accelerometer values or compass and accelerometer values, where compass values are ignored&#10;Fixed bugs in the math" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a method to read from CSV files, supports either files with only accelerometer values or compass and accelerometer values, where compass values are ignored&#10;Fixed bugs in the math" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -523,9 +524,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#19462#19463#0" expanded="true" />
-            <element signature="e#19492#19493#0" expanded="true" />
+            <element signature="e#19849#19850#0" expanded="true" />
+            <element signature="e#19879#19880#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -543,9 +545,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#19462#19463#0" expanded="true" />
-            <element signature="e#19492#19493#0" expanded="true" />
+            <element signature="e#19849#19850#0" expanded="true" />
+            <element signature="e#19879#19880#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -563,9 +566,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#19462#19463#0" expanded="true" />
-            <element signature="e#19492#19493#0" expanded="true" />
+            <element signature="e#19849#19850#0" expanded="true" />
+            <element signature="e#19879#19880#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -583,9 +587,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#19462#19463#0" expanded="true" />
-            <element signature="e#19492#19493#0" expanded="true" />
+            <element signature="e#19849#19850#0" expanded="true" />
+            <element signature="e#19879#19880#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -600,12 +605,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/CalibrationGUI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.18541409">
-          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+        <state vertical-scroll-proportion="0.3695921">
+          <caret line="519" column="23" selection-start-line="519" selection-start-column="12" selection-end-line="519" selection-end-column="23" />
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#19462#19463#0" expanded="true" />
-            <element signature="e#19492#19493#0" expanded="true" />
+            <element signature="e#19849#19850#0" expanded="true" />
+            <element signature="e#19879#19880#0" expanded="true" />
           </folding>
         </state>
       </provider>
