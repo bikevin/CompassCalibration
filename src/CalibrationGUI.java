@@ -3,7 +3,7 @@
  * Builds GUI and does the math for for the calibration program.
  * Uses math from http://www.mathworks.com/matlabcentral/fileexchange/45356-fitting-quadratic-curves-and-surfaces/
  * and http://www.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit to calculate the fitted
- * ellipse characteristics.
+ * ellipse and its characteristics.
  */
 import Jama.CholeskyDecomposition;
 import Jama.EigenvalueDecomposition;
@@ -12,12 +12,12 @@ import Jama.Matrix;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class CalibrationGUI extends JFrame implements ActionListener, WindowListener{
-    private Label lblPt1, lblPt2, lblPt3, lblPt4, lblPt5, lblPt6, lblPt7, lblPt8, lblPt9;
-    private Label centerLabel, radiiLabel, rotationLabel;
 
     private TextField txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9;
     private TextField txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20;
@@ -26,16 +26,13 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
     private TextArea rotationMatrix;
 
-    private Button submitButton;
-
-
 
     public CalibrationGUI(){
         setLayout(new FlowLayout());
         setResizable(false);
 
         JPanel jPanel1 = new JPanel(new FlowLayout());
-        lblPt1 = new Label("Point 1");
+        Label lblPt1 = new Label("Point 1");
         jPanel1.add(lblPt1);
 
         txt1 = new TextField(6);
@@ -51,7 +48,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel1.add(txt3);
 
         JPanel jPanel2 = new JPanel(new FlowLayout());
-        lblPt2 = new Label("Point 2");
+        Label lblPt2 = new Label("Point 2");
         jPanel2.add(lblPt2);
 
         txt4 = new TextField(6);
@@ -67,7 +64,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel2.add(txt6);
 
         JPanel jPanel3 = new JPanel(new FlowLayout());
-        lblPt3 = new Label("Point 3");
+        Label lblPt3 = new Label("Point 3");
         jPanel3.add(lblPt3);
 
         txt7 = new TextField(6);
@@ -83,7 +80,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel3.add(txt9);
 
         JPanel jPanel4 = new JPanel(new FlowLayout());
-        lblPt4 = new Label("Point 4");
+        Label lblPt4 = new Label("Point 4");
         jPanel4.add(lblPt4);
 
         txt10 = new TextField(6);
@@ -99,7 +96,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel4.add(txt12);
 
         JPanel jPanel5 = new JPanel(new FlowLayout());
-        lblPt5 = new Label("Point 5");
+        Label lblPt5 = new Label("Point 5");
         jPanel5.add(lblPt5);
 
         txt13 = new TextField(6);
@@ -115,7 +112,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel5.add(txt15);
 
         JPanel jPanel6 = new JPanel(new FlowLayout());
-        lblPt6 = new Label("Point 6");
+        Label lblPt6 = new Label("Point 6");
         jPanel6.add(lblPt6);
 
         txt16 = new TextField(6);
@@ -131,7 +128,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel6.add(txt18);
 
         JPanel jPanel7 = new JPanel(new FlowLayout());
-        lblPt7 = new Label("Point 7");
+        Label lblPt7 = new Label("Point 7");
         jPanel7.add(lblPt7);
 
         txt19 = new TextField(6);
@@ -147,7 +144,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel7.add(txt21);
 
         JPanel jPanel8 = new JPanel(new FlowLayout());
-        lblPt8 = new Label("Point 8");
+        Label lblPt8 = new Label("Point 8");
         jPanel8.add(lblPt8);
 
         txt22 = new TextField(6);
@@ -163,7 +160,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanel8.add(txt24);
 
         JPanel jPanel9 = new JPanel(new FlowLayout());
-        lblPt9 = new Label("Point 9");
+        Label lblPt9 = new Label("Point 9");
         jPanel9.add(lblPt9);
 
         txt25 = new TextField(6);
@@ -180,7 +177,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
         JPanel jPanelSubmit = new JPanel(new FlowLayout());
 
-        submitButton = new Button("Submit Points");
+        Button submitButton = new Button("Submit Points");
         jPanelSubmit.add(submitButton);
 
         submitButton.addActionListener(this);
@@ -192,7 +189,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         setVisible(true);
 
         JPanel jPanelCenter = new JPanel(new FlowLayout());
-        centerLabel = new Label("Center");
+        Label centerLabel = new Label("Center");
         jPanelCenter.add(centerLabel);
 
         centerText = new TextField(15);
@@ -200,7 +197,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanelCenter.add(centerText);
 
         JPanel jPanelRadii = new JPanel(new FlowLayout());
-        radiiLabel = new Label("Radii");
+        Label radiiLabel = new Label("Radii");
         jPanelRadii.add(radiiLabel);
 
         radiiText = new TextField(20);
@@ -208,7 +205,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanelRadii.add(radiiText);
 
         JPanel jPanelRotation = new JPanel(new FlowLayout());
-        rotationLabel = new Label("Rotation Matrix");
+        Label rotationLabel = new Label("Rotation Matrix");
         jPanelRotation.add(rotationLabel);
 
         rotationMatrix = new TextArea(3, 17);
@@ -347,7 +344,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        double[][] ellipsoidMatrix = new double[pointArray[0].length][pointArray[0].length];
+        double[][] ellipsoidMatrix = new double[9][pointArray[0].length];
 
         //fitting ellipsoid in form Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz - 1 = 0
         for(int i = 0; i < pointArray[0].length; i++){
@@ -362,7 +359,6 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
             ellipsoidMatrix[8][i] = 2 * pointArray[2][i];
         }
 
-
         Matrix ellipse = new Matrix(ellipsoidMatrix);
 
         ellipse = ellipse.transpose();
@@ -370,19 +366,13 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
         //solve normal system of equations
         //given ellipsoidMatrix = D, solution = v: v = (D' * D)^-1 * (D' * (1xLengthOfD matrix of ones))
+        Matrix flat = new Matrix(ellipsoidMatrix[0].length, 1, 1);
 
-        //create flattener - must be double[][] instead of double[] for multiply method
-        double[][] flattener = new double[ellipsoidMatrix.length][1];
-        for(double[] d : flattener){
-            d[0] = 1;
-        }
-
-        Matrix flat = new Matrix(flattener);
 
         Matrix ellipseSolved = new Matrix(0,0);
 
         try {
-            ellipseSolved = (ellipse.inverse().times(ellipse).solve(ellipse.inverse().times(flat)));
+            ellipseSolved = ellipse.transpose().times(ellipse).inverse().times(ellipse.transpose().times(flat));
         } catch(RuntimeException e){
             JOptionPane.showMessageDialog(this, "Points do not define a real ellipse - check the inputs",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -485,6 +475,60 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         return new EllipseInformation(center, radii, eigenvectors);
     }
 
+    //REQUIRES: filepath representing a file in CSV format
+    //this CSV file can either be all accelerometer values in xyz or can also be
+    //compass values in xyz followed by accelerometer values in xyz, where the
+    //compass values are ignored.
+    //EFFECTS: returns double[][] populated with points ready to pass to ellipseSolver()
+    public double[][] pointInputFromCSV(String filepath){
+
+        //initialize variables
+        String line;
+        String separator = ",";
+        //use array list to support unspecified number of points
+        ArrayList<double[]> pointList = new ArrayList<>();
+
+        try {
+
+            //read file
+            BufferedReader br = new BufferedReader(new FileReader(filepath));
+
+            while((line =  br.readLine()) != null){
+
+                //split by comma
+                String[] point = line.split(separator);
+                double[] pointValue = new double[3];
+                //if only accelerometer values
+                if(point.length == 3) {
+                    for (int i = 0; i < point.length; i++) {
+                        pointValue[i] = Double.valueOf(point[i]);
+                    }
+                //else ignore the compass and take the accelerometer values
+                } else {
+                    for (int i = 3; i < point.length; i++) {
+                        pointValue[i - 3] = Double.valueOf(point[i]);
+                    }
+                }
+                pointList.add(pointValue);
+            }
+        } catch(FileNotFoundException e){
+            JOptionPane.showMessageDialog(this, "File not found", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch(IOException e){
+            JOptionPane.showMessageDialog(this, "IO Error", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        //convert from dynamically growing arraylist to statically sized double[][] that ellipseSolver() can use
+        double[][] points = new double[3][pointList.size()];
+
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < pointList.size(); j++){
+                points[i][j] = pointList.get(j)[i];
+            }
+        }
+
+        return points;
+    }
+
     @Override
     public void windowClosing(WindowEvent e){
         System.exit(0);
@@ -505,15 +549,20 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
     public void windowDeactivated(WindowEvent e){}
 }
 
-//holder object for ellipse center, radii, and rotation matrices
+//container object for ellipse center, radii, and rotation matrices
 class EllipseInformation {
     Matrix center, radii, rotation;
+
+    //constructor
+    //REQUIRES: center, radii, rotation matrices of ellipse
+    //EFFECTS: creates object to hold these matrices
     public EllipseInformation(Matrix ellipseCenter, Matrix ellipseRadii, Matrix ellipseRotation){
         center = ellipseCenter;
         radii = ellipseRadii;
         rotation = ellipseRotation;
     }
 
+    //EFFECTS: returns center, radii, or rotation matrices
     public Matrix getCenter(){
         return center;
     }
@@ -524,5 +573,12 @@ class EllipseInformation {
 
     public Matrix getRotation(){
         return rotation;
+    }
+
+    //EFFECTS: prints center, radii, and rotation to console
+    public void print(){
+        center.print(1, 5);
+        radii.print(1, 5);
+        rotation.print(1, 5);
     }
 }
