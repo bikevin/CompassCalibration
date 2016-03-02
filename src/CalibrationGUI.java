@@ -17,7 +17,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class CalibrationGUI extends JFrame implements ActionListener, WindowListener{
+public class CalibrationGUI extends JFrame implements ActionListener, WindowListener, SerialEventInterface{
 
     private TextField txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9;
     private TextField txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20;
@@ -26,6 +26,7 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
     private TextArea rotationMatrix;
 
+    private String arduinoInput;
 
     public CalibrationGUI(){
         setLayout(new FlowLayout());
@@ -534,6 +535,47 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         }
 
         return points;
+    }
+
+    public void pointInputFromTeensy() throws Exception{
+        Serial serialInput = new Serial(this);
+        serialInput.initialize();
+        Thread t = new Thread() {
+            public void run(){
+                //the following line will keep this app alive for 1000 seconds,
+                //waiting for events to occur and responding to them (printing incoming messages to console).
+                try {Thread.sleep(1000000);} catch (InterruptedException ie) {}
+            }
+        };
+
+        t.start();
+        System.out.println("started");
+
+    }
+
+    public void returnInputString(String s){
+        arduinoInput = s;
+    }
+
+    public double[][] stringToDoubleArray(String s){
+        String[] point = s.split(",");
+        double[] pointValue = new double[3];
+        ArrayList<double[]> pointList = new ArrayList<>();
+        for(int j = 0; j < point.length/3; j++) {
+            for (int i = 0; i < 3; i++) {
+                pointValue[i] = Double.valueOf(point[j*3 + i]);
+            }
+            pointList.add(pointValue);
+        }
+
+        double[][] finalPoints = new double[3][pointList.size()];
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < pointList.size(); j++){
+                    finalPoints[i][j] = pointList.get(j)[i];
+            }
+        }
+
+        return finalPoints;
     }
 
     @Override
