@@ -3,6 +3,7 @@
  */
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import gnu.io.CommPortIdentifier;
@@ -44,7 +45,7 @@ public class Serial implements SerialPortEventListener {
     public void initialize() {
         // the next line is for Raspberry Pi and
         // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
-        System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
+        //System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
 
         CommPortIdentifier portId = null;
         Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -79,6 +80,9 @@ public class Serial implements SerialPortEventListener {
             input = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
             output = serialPort.getOutputStream();
 
+            //write compass command to serial port
+            output.write("+1039".getBytes());
+
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
@@ -104,9 +108,10 @@ public class Serial implements SerialPortEventListener {
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
-                String inputLine=input.readLine();
-                System.out.println(inputLine);
-                serialEventInterface.returnInputString(inputLine);
+                if(input.ready()) {
+                    String inputLine = input.readLine();
+                    serialEventInterface.calculateEllipse(inputLine);
+                }
             } catch (Exception e) {
                 System.err.println(e.toString());
             }

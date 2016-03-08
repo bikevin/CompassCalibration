@@ -8,16 +8,20 @@
 import Jama.CholeskyDecomposition;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import gnu.io.CommPortIdentifier;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
-public class CalibrationGUI extends JFrame implements ActionListener, WindowListener, SerialEventInterface{
+public class CalibrationGUI extends JFrame implements ActionListener, WindowListener, ListSelectionListener, SerialEventInterface{
 
     private TextField txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9;
     private TextField txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20;
@@ -26,7 +30,13 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
     private TextArea rotationMatrix;
 
-    private String arduinoInput;
+    private JList comPortList;
+
+    private String[] comPorts;
+
+    private ArrayList<double[]> data;
+
+    private Serial serial;
 
     public CalibrationGUI(){
         setLayout(new FlowLayout());
@@ -182,10 +192,33 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         jPanelSubmit.add(submitButton);
 
         submitButton.addActionListener(this);
+        submitButton.setActionCommand("text input");
 
+        Button teensyButton = new Button("Teensy Input");
+        jPanelSubmit.add(teensyButton);
+
+        teensyButton.addActionListener(this);
+        teensyButton.setActionCommand("teensy input");
+
+        JPanel jPanelList = new JPanel(new FlowLayout());
+
+        comPorts = getComPorts();
+
+        comPortList = new JList(comPorts);
+
+        comPortList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        comPortList.setLayoutOrientation(JList.VERTICAL);
+        comPortList.setVisibleRowCount(-1);
+        comPortList.setVisible(true);
+
+        JScrollPane listScroller = new JScrollPane(comPortList);
+        listScroller.setPreferredSize(new Dimension(100,100));
+        listScroller.setAlignmentX(LEFT_ALIGNMENT);
+
+        jPanelList.add(listScroller);
 
         setTitle("Compass Calibrator");
-        setSize(300, 600);
+        setSize(300, 1000);
 
         setVisible(true);
 
@@ -223,10 +256,12 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         add(jPanel8);
         add(jPanel9);
         add(jPanelSubmit);
+        add(jPanelList);
         add(jPanelCenter);
         add(jPanelRadii);
         add(jPanelRotation);
 
+        data = new ArrayList<>();
 
 
         this.addWindowListener(new WindowAdapter() {
@@ -241,95 +276,104 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
     @Override
     public void actionPerformed(ActionEvent evt){
         //send entered values here
-        double[][] inputPoints = new double[3][9];
-        try {
-            inputPoints[0][0] = Double.valueOf(txt1.getText());
-            inputPoints[0][1] = Double.valueOf(txt4.getText());
-            inputPoints[0][2] = Double.valueOf(txt7.getText());
-            inputPoints[0][3] = Double.valueOf(txt10.getText());
-            inputPoints[0][4] = Double.valueOf(txt13.getText());
-            inputPoints[0][5] = Double.valueOf(txt16.getText());
-            inputPoints[0][6] = Double.valueOf(txt19.getText());
-            inputPoints[0][7] = Double.valueOf(txt22.getText());
-            inputPoints[0][8] = Double.valueOf(txt25.getText());
-            inputPoints[1][0] = Double.valueOf(txt2.getText());
-            inputPoints[1][1] = Double.valueOf(txt5.getText());
-            inputPoints[1][2] = Double.valueOf(txt8.getText());
-            inputPoints[1][3] = Double.valueOf(txt11.getText());
-            inputPoints[1][4] = Double.valueOf(txt14.getText());
-            inputPoints[1][5] = Double.valueOf(txt17.getText());
-            inputPoints[1][6] = Double.valueOf(txt20.getText());
-            inputPoints[1][7] = Double.valueOf(txt23.getText());
-            inputPoints[1][8] = Double.valueOf(txt26.getText());
-            inputPoints[2][0] = Double.valueOf(txt3.getText());
-            inputPoints[2][1] = Double.valueOf(txt6.getText());
-            inputPoints[2][2] = Double.valueOf(txt9.getText());
-            inputPoints[2][3] = Double.valueOf(txt12.getText());
-            inputPoints[2][4] = Double.valueOf(txt15.getText());
-            inputPoints[2][5] = Double.valueOf(txt18.getText());
-            inputPoints[2][6] = Double.valueOf(txt21.getText());
-            inputPoints[2][7] = Double.valueOf(txt24.getText());
-            inputPoints[2][8] = Double.valueOf(txt27.getText());
-        } catch (NumberFormatException e){
-            System.out.println(e.getMessage());
-            JOptionPane.showMessageDialog(this, "One or more input fields are blank",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
+        if(evt.getActionCommand().equals("text input")) {
+            double[][] inputPoints = new double[3][9];
+            try {
+                inputPoints[0][0] = Double.valueOf(txt1.getText());
+                inputPoints[0][1] = Double.valueOf(txt4.getText());
+                inputPoints[0][2] = Double.valueOf(txt7.getText());
+                inputPoints[0][3] = Double.valueOf(txt10.getText());
+                inputPoints[0][4] = Double.valueOf(txt13.getText());
+                inputPoints[0][5] = Double.valueOf(txt16.getText());
+                inputPoints[0][6] = Double.valueOf(txt19.getText());
+                inputPoints[0][7] = Double.valueOf(txt22.getText());
+                inputPoints[0][8] = Double.valueOf(txt25.getText());
+                inputPoints[1][0] = Double.valueOf(txt2.getText());
+                inputPoints[1][1] = Double.valueOf(txt5.getText());
+                inputPoints[1][2] = Double.valueOf(txt8.getText());
+                inputPoints[1][3] = Double.valueOf(txt11.getText());
+                inputPoints[1][4] = Double.valueOf(txt14.getText());
+                inputPoints[1][5] = Double.valueOf(txt17.getText());
+                inputPoints[1][6] = Double.valueOf(txt20.getText());
+                inputPoints[1][7] = Double.valueOf(txt23.getText());
+                inputPoints[1][8] = Double.valueOf(txt26.getText());
+                inputPoints[2][0] = Double.valueOf(txt3.getText());
+                inputPoints[2][1] = Double.valueOf(txt6.getText());
+                inputPoints[2][2] = Double.valueOf(txt9.getText());
+                inputPoints[2][3] = Double.valueOf(txt12.getText());
+                inputPoints[2][4] = Double.valueOf(txt15.getText());
+                inputPoints[2][5] = Double.valueOf(txt18.getText());
+                inputPoints[2][6] = Double.valueOf(txt21.getText());
+                inputPoints[2][7] = Double.valueOf(txt24.getText());
+                inputPoints[2][8] = Double.valueOf(txt27.getText());
+            } catch (NumberFormatException e) {
+                System.out.println(e.getMessage());
+                JOptionPane.showMessageDialog(this, "One or more input fields are blank",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
 
-        //find an ellipse that fits the points if such an ellipse exists
-        Matrix ellipseSolved = ellipseSolver(inputPoints);
 
-        //find the center, radii, rotation matrices of that ellipse
-        EllipseInformation ellipseInformation = ellipseCharacteristicCalculation(ellipseSolved);
+            //find an ellipse that fits the points if such an ellipse exists
+            Matrix ellipseSolved = ellipseSolver(inputPoints);
 
-        Matrix center = ellipseInformation.getCenter();
-        Matrix radii = ellipseInformation.getRadii();
-        Matrix rotation = ellipseInformation.getRotation();
+            //find the center, radii, rotation matrices of that ellipse
+            EllipseInformation ellipseInformation = ellipseCharacteristicCalculation(ellipseSolved);
 
-        //display those matrices
-        //set a rounder to round all numbers to 3 decimal places
-        DecimalFormat df = new DecimalFormat("#.###");
-        df.setRoundingMode(RoundingMode.CEILING);
+            Matrix center = ellipseInformation.getCenter();
+            Matrix radii = ellipseInformation.getRadii();
+            Matrix rotation = ellipseInformation.getRotation();
 
-        //print center
-        double[][] centerArray = center.getArray();
-        String centerString = "";
-        for (double[] internalArray : centerArray) {
-            for (double coordinate : internalArray) {
-                centerString = centerString + String.valueOf(df.format(coordinate)) + " ";
+            //display those matrices
+            //set a rounder to round all numbers to 3 decimal places
+            DecimalFormat df = new DecimalFormat("#.###");
+            df.setRoundingMode(RoundingMode.CEILING);
+
+            //print center
+            double[][] centerArray = center.getArray();
+            String centerString = "";
+            for (double[] internalArray : centerArray) {
+                for (double coordinate : internalArray) {
+                    centerString = centerString + String.valueOf(df.format(coordinate)) + " ";
+                }
+            }
+
+            centerText.setText(centerString);
+
+            System.out.println("Radii: x y z");
+            radii.print(1, 3);
+
+            double[][] radiiArray = radii.getArray();
+            String radiiString = "";
+            for (double[] internalArray : radiiArray) {
+                for (double coordinate : internalArray) {
+                    radiiString = radiiString + String.valueOf(df.format(coordinate)) + " ";
+                }
+            }
+
+            radiiText.setText(radiiString);
+
+            //rotation matrix: derotated point = rotation * i
+            System.out.println("Rotation matrix: ");
+            rotation.print(1, 5);
+
+            double[][] rotationArray = rotation.getArray();
+            String rotationString = "";
+            for (double[] internalArray : rotationArray) {
+                for (double coordinate : internalArray) {
+                    rotationString = rotationString + String.valueOf(df.format(coordinate)) + " ";
+                }
+                rotationString = rotationString + "\n";
+            }
+
+            rotationMatrix.setText(rotationString);
+        } else {
+            try {
+                pointInputFromTeensy();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-
-        centerText.setText(centerString);
-
-        System.out.println("Radii: x y z");
-        radii.print(1, 3);
-
-        double[][] radiiArray = radii.getArray();
-        String radiiString = "";
-        for(double[] internalArray : radiiArray){
-            for(double coordinate : internalArray){
-                radiiString = radiiString + String.valueOf(df.format(coordinate)) + " ";
-            }
-        }
-
-        radiiText.setText(radiiString);
-
-        //rotation matrix: derotated point = rotation * i
-        System.out.println("Rotation matrix: ");
-        rotation.print(1, 5);
-
-        double[][] rotationArray = rotation.getArray();
-        String rotationString = "";
-        for(double[] internalArray : rotationArray){
-            for(double coordinate : internalArray){
-                rotationString = rotationString + String.valueOf(df.format(coordinate)) + " ";
-            }
-            rotationString = rotationString + "\n";
-        }
-
-        rotationMatrix.setText(rotationString);
     }
 
     //REQUIRES: nx3 array, column one is x, column two is y, column three is z
@@ -537,14 +581,14 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         return points;
     }
 
-    public void pointInputFromTeensy() throws Exception{
-        Serial serialInput = new Serial(this);
-        serialInput.initialize();
+    public void pointInputFromTeensy() throws IOException{
+        serial = new Serial(this);
+        serial.initialize();
         Thread t = new Thread() {
             public void run(){
                 //the following line will keep this app alive for 1000 seconds,
                 //waiting for events to occur and responding to them (printing incoming messages to console).
-                try {Thread.sleep(1000000);} catch (InterruptedException ie) {}
+                try {Thread.sleep(1000000);} catch (InterruptedException ie) {ie.printStackTrace();}
             }
         };
 
@@ -553,8 +597,15 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
 
     }
 
-    public void returnInputString(String s){
-        arduinoInput = s;
+    public void calculateEllipse(String s){
+        data.addAll(stringToArrayList(s));
+        System.out.println(data.size());
+        if(data.size() > 20){
+            serial.close();
+            Matrix matrix = ellipseSolver(arrayListToDouble(data));
+            EllipseInformation ellipseInformation = ellipseCharacteristicCalculation(matrix);
+            ellipseInformation.print();
+        }
     }
 
     public double[][] stringToDoubleArray(String s){
@@ -576,6 +627,56 @@ public class CalibrationGUI extends JFrame implements ActionListener, WindowList
         }
 
         return finalPoints;
+    }
+
+    public ArrayList<double[]> stringToArrayList(String s){
+        String[] point = s.split(",");
+        double[] pointValue = new double[3];
+        ArrayList<double[]> pointList = new ArrayList<>();
+        for(int j = 0; j < point.length/3; j++) {
+            for (int i = 0; i < 3; i++) {
+                pointValue[i] = Double.valueOf(point[j*3 + i]);
+            }
+            pointList.add(pointValue);
+        }
+
+        return pointList;
+    }
+
+    public double[][] arrayListToDouble(ArrayList<double[]> pointList){
+        double[][] finalPoints = new double[3][pointList.size()];
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < pointList.size(); j++){
+                finalPoints[i][j] = pointList.get(j)[i];
+            }
+        }
+
+        return finalPoints;
+    }
+
+    public String[] getComPorts(){
+        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+        ArrayList<String> ports = new ArrayList<>();
+        while(portList.hasMoreElements()){
+            CommPortIdentifier portIdentifier = (CommPortIdentifier) portList.nextElement();
+            ports.add(portIdentifier.getName());
+            System.out.println(portIdentifier.getName());
+        }
+
+        String[] comPorts = new String[ports.size()];
+        for(int i = 0; i < ports.size(); i++){
+            comPorts[i] = ports.get(i);
+        }
+        return comPorts;
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e){
+        if(!e.getValueIsAdjusting()){
+            if(comPortList.getSelectedIndex() != -1){
+                String portName = comPorts[comPortList.getSelectedIndex()];
+            }
+        }
     }
 
     @Override

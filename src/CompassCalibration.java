@@ -7,11 +7,11 @@ public class CompassCalibration {
     public static void main(String[] args) {
 
         //initialize calibration GUI, comment out if using test cases
-        //new CalibrationGUI();
+        new CalibrationGUI();
 
 
         //test case w/o compass values
-        CalibrationGUI calibrationGUI = new CalibrationGUI();
+        /*CalibrationGUI calibrationGUI = new CalibrationGUI();
 
         EllipseInformation ellipseInformation = calibrationGUI.ellipseCharacteristicCalculation(
                 calibrationGUI.ellipseSolver(
@@ -24,7 +24,7 @@ public class CompassCalibration {
                 calibrationGUI.ellipseSolver(
                         calibrationGUI.pointInputFromCSV("C:/Users/Kevin/Documents/Octave/compass/data2.txt")));
 
-        ellipseInformation1.print();
+        ellipseInformation1.print();*/
     }
 
 
